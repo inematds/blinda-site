@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>blinda-site — seguridad del sitio mirando desde adentro</title>
+<meta name="description" content="Método para que tu agente de IA proteja un sitio leyendo el proyecto local: diagnóstico, plan, respaldo, simulación y dos niveles de riesgo.">
+<link rel="alternate" hreflang="pt-BR" href="https://inematds.github.io/blinda-site/guia/">
+<link rel="alternate" hreflang="en" href="https://inematds.github.io/blinda-site/guia/en/">
+<link rel="alternate" hreflang="es" href="https://inematds.github.io/blinda-site/guia/es/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730;
+    --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; --amb2:#f0c070; --sky:#38bdf8; --pro:#cbd5e1;
+    color-scheme:dark;
+  }
+  body.light{
+    --bg:#f6f7f9; --bg2:#eceef2; --card:#ffffff; --line:#e1e3ea;
+    --txt:#1a1a22; --mut:#5b5b68; --amb:#b9791d; --amb2:#a16207; --sky:#0369a1; --pro:#b45309;
+    color-scheme:light;
+  }
+  body.light .hero .glow{opacity:.5}
+  body.light pre{background:#0e0e14;color:#d6d6e0}
+  body.light pre .c{color:#8a8a98}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Sora,sans-serif;line-height:1.15;margin:0}
+  a{color:var(--amb);text-decoration:none}
+  code,pre{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .mut{color:var(--mut)} .amb{color:var(--amb)}
+  .chip{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(12px);background:rgba(12,12,16,.78);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+  nav .brand{display:flex;align-items:center;gap:8px;font-family:Sora;font-weight:800;letter-spacing:-.02em;color:var(--amb)}
+  nav .brand .emoji{font-size:1.25rem}
+  nav .sep{color:var(--mut);opacity:.45}
+  nav .inema{color:var(--sky);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .inema:hover{filter:brightness(1.15)}
+  nav .pro{color:var(--pro);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .pro:hover{filter:brightness(1.15)}
+  nav .clubpro{display:inline-flex;align-items:center;gap:6px}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:.92rem}
+  nav .links a.sec{color:var(--mut)} nav .links a.sec:hover{color:var(--txt)}
+  .lang{display:inline-flex;gap:2px;font-family:Sora;font-size:.78rem}
+  .lang a{color:var(--mut);padding:.2em .45em;border-radius:6px} .lang a.on{color:var(--amb);background:rgba(226,162,59,.12)}
+  .tgl{background:var(--bg2);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}
+  .tgl:hover{border-color:var(--amb)}
+  .btn{display:inline-block;background:var(--amb);color:#1a1206;font-weight:600;padding:.6em 1.05em;border-radius:10px;font-family:Sora}
+  .btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+  @media(max-width:760px){nav .links a.sec{display:none}}
+  @media(max-width:520px){nav .wrap{gap:8px;padding:8px 14px;height:auto;flex-wrap:wrap} nav .links{gap:8px;margin-left:0;width:100%;justify-content:space-between} nav .btn{padding:.45em .7em;font-size:.82rem} .tgl{width:34px;height:34px}}
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero .glow{position:absolute;inset:-40% -20% auto auto;width:70%;height:600px;background:radial-gradient(closest-side,rgba(226,162,59,.22),transparent 70%);pointer-events:none}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:74px 22px}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.025em}
+  .hero p.lead{font-size:1.18rem;color:var(--mut);margin:1.1em 0 1.6em;max-width:34ch}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero figure{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000}
+  .hero figure img{width:100%;display:block}
+  .resumo{padding:38px 0 34px;border-bottom:1px solid var(--line)}
+  .resumo p{font-size:1.12rem;line-height:1.7;max-width:74ch;margin:.55em 0 0}
+  @media(max-width:780px){.hero .wrap{grid-template-columns:1fr;padding:48px 22px}}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.02em}
+  section .sub{color:var(--mut);margin:.6em 0 2em;max-width:62ch}
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:540px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:1.05rem;margin-bottom:.4em}
+  .card p{color:var(--mut);font-size:.92rem;margin:0}
+  .num{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:8px;background:rgba(226,162,59,.14);color:var(--amb);font-family:Sora;font-weight:800;font-size:.9rem;margin-bottom:.7em}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .flow span{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:.45em .9em;font-size:.85rem;font-family:Sora;font-weight:600}
+  .flow .arr{color:var(--amb);border:none;background:none;padding:0 .1em}
+  pre{background:#0a0a0e;border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;font-size:.86rem;line-height:1.6;color:#d6d6e0}
+  pre .c{color:#6f6f7c} pre .k{color:var(--amb2)} pre .s{color:#9ece6a}
+  .step{display:grid;grid-template-columns:46px minmax(0,1fr);gap:16px;margin-bottom:26px}
+  .step>div,.card{min-width:0}
+  p code,li code,td code{overflow-wrap:anywhere}
+  .step .b{width:46px;height:46px;border-radius:12px;background:var(--amb);color:#1a1206;font-family:Sora;font-weight:800;font-size:1.25rem;display:flex;align-items:center;justify-content:center}
+  .step h3{font-size:1.12rem;margin-bottom:.3em}
+  .step p{color:var(--mut);margin:.2em 0 .7em}
+  .ex{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.ex{grid-template-columns:1fr}}
+  .ex figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .ex figure img{width:100%;display:block}
+  .ex figcaption{padding:12px 14px;font-size:.88rem;color:var(--mut);background:var(--card)}
+  .phase{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border:none}
+  .phase .tag{flex:0 0 92px;font-family:Sora;font-weight:800;color:var(--amb)}
+  .phase .d strong{display:block;margin-bottom:.2em}
+  .phase .d span{color:var(--mut);font-size:.92rem}
+  footer{padding:46px 0;text-align:center;color:var(--mut);font-size:.9rem}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.3em .8em;font-size:.78rem;color:var(--mut);margin:0 4px}
+  .mx{width:100%;border-collapse:collapse;margin:8px 0 22px;font-size:.92rem}
+  .mx th,.mx td{border:1px solid var(--line);padding:.6em .7em;text-align:left;vertical-align:top}
+  .mx th{font-family:Sora;color:var(--amb);font-weight:700}
+  .mx td.ok{color:#4ade80}.mx td.mid{color:var(--amb)}.mx td.ask{color:#f87171}
+  .tablewrap{overflow-x:auto}
+  .aviso{border:1px solid var(--amb);border-radius:14px;padding:14px 18px;margin:0 0 22px;color:var(--txt)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="brand" href="#top"><span class="emoji">🛡️</span> blinda-site</a>
+  <span class="sep">|</span>
+  <span class="clubpro">
+    <a class="inema" href="https://inema.club" target="_blank" rel="noopener">INEMA.CLUB</a>
+    <span class="sep">-</span>
+    <a class="pro" href="https://inema.pro" target="_blank" rel="noopener">PRO</a>
+  </span>
+  <div class="links">
+    <a class="sec" href="#oque">Qué es</a>
+    <a class="sec" href="#fluxo">Cómo funciona</a>
+    <a class="sec" href="#guia">Guía de uso</a>
+    <a class="sec" href="#roadmap">Roadmap</a>
+    <span class="lang"><a href="../">PT</a><a href="../en/">EN</a><a class="on" href="./">ES</a></span>
+    <button class="tgl" id="themeToggle" aria-label="Cambiar tema" title="Cambiar tema">🌙</button>
+    <a class="btn" href="https://github.com/inematds/blinda-site" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div>
+      <span class="chip">Método + roadmap · scripts de la v1 en construcción</span>
+      <h1><span class="amb">Blinda</span> tu sitio mirando desde adentro</h1>
+      <p class="lead">Tu agente lee el proyecto en tu máquina, señala lo que está expuesto, hace un respaldo, simula la corrección y solo aplica lo que tú apruebes.</p>
+      <div class="cta">
+        <a class="btn" href="#guia">Empezar la guía</a>
+        <a class="btn ghost" href="https://github.com/inematds/blinda-site" target="_blank" rel="noopener">Ver en GitHub</a>
+      </div>
+    </div>
+    <figure><img src="../assets/banner-es.jpg" alt="Banner: Blinda tu sitio — seguridad mirando desde adentro"></figure>
+  </div>
+</header>
+
+<section id="resumo" class="resumo"><div class="wrap">
+  <span class="chip">En resumen</span>
+  <p>blinda-site es un método para que tu agente de IA (Claude Code o Codex) proteja un sitio sin tocar el sitio que está en línea. Lee el código y la configuración del proyecto en tu máquina, encuentra lo que está expuesto y arma un plan de correcciones. Cada corrección viene con dos niveles de riesgo: qué tan grave es el problema y qué tanto puede romper algo el cambio. Antes de tocar nada, el método exige un respaldo y una simulación local. Para usarlo, basta con tener el proyecto del sitio en tu computadora y un agente abierto en su carpeta.</p>
+</div></section>
+
+<section id="oque"><div class="wrap">
+  <span class="chip">Qué es</span>
+  <h2>Seguridad sin escanear el sitio de nadie</h2>
+  <p class="sub">Un escáner externo lee una página y, en un sitio ajeno, puede parecer una intrusión. Mirando desde adentro ves mucho más y no le pides permiso a nadie.</p>
+  <figure style="margin:0 0 26px;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000"><img src="../assets/banner-grade-es.jpg" alt="Las etapas: diagnóstico, plan, respaldo, simulación, aplicar y verificar" loading="lazy" style="width:100%;display:block"></figure>
+  <div class="grid g3">
+    <div class="card"><h3>🔍 Solo local</h3><p>El diagnóstico lee código, configuración, lockfile e historial de git. Ninguna solicitud al sitio en línea, ninguna modificación al proyecto.</p></div>
+    <div class="card"><h3>💾 Respaldo y simulación</h3><p>Ninguna corrección sin una rama de respaldo y sin que el build, el servidor local y el navegador lo verifiquen antes.</p></div>
+    <div class="card"><h3>⚖️ Dos ejes de riesgo</h3><p>La gravedad del problema y el riesgo de la corrección se miden por separado. Lo que es riesgoso siempre pregunta antes.</p></div>
+  </div>
+</div></section>
+
+<section id="fluxo"><div class="wrap">
+  <span class="chip">Cómo funciona</span>
+  <h2>7 etapas, en este orden</h2>
+  <p class="sub">Las tres primeras solo leen. Nada cambia en el proyecto hasta que el plan se aprueba y el respaldo existe.</p>
+  <div class="flow">
+    <span>1 Diagnosticar</span><span class="arr">→</span>
+    <span>2 Informe</span><span class="arr">→</span>
+    <span>3 Plan</span><span class="arr">→</span>
+    <span>4 Respaldo</span><span class="arr">→</span>
+    <span>5 Simular</span><span class="arr">→</span>
+    <span>6 Aplicar</span><span class="arr">→</span>
+    <span>7 Verificar</span>
+  </div>
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card"><h3>1. Encabezados y configuración</h3><p>CSP, X-Frame-Options, nosniff, Referrer-Policy y HSTS en <code>next.config</code>, <code>vercel.json</code>, <code>_headers</code>.</p></div>
+    <div class="card"><h3>2. Dependencias</h3><p><code>npm audit</code> sobre el lockfile, versión del framework y si su línea todavía recibe correcciones.</p></div>
+    <div class="card"><h3>3. Secretos</h3><p><code>.env</code> en git o en el historial, clave en el código, secreto expuesto al navegador.</p></div>
+    <div class="card"><h3>4. Base de datos y login</h3><p>Supabase: tabla sin RLS, <code>service_role</code> en el front, ruta de API que no verifica la sesión. Sin migrations locales, el informe dice "no verificado".</p></div>
+    <div class="card"><h3>5. Código (v2)</h3><p>El agente lee y comenta: HTML inyectado, redirección abierta, subida de archivos sin límite.</p></div>
+  </div>
+</div></section>
+
+<section id="risco"><div class="wrap">
+  <span class="chip">Matriz de riesgo</span>
+  <h2>Grave no siempre es urgente de tocar</h2>
+  <p class="sub">Una corrección segura de un problema medio va antes que una corrección riesgosa de un problema grave, que espera tu visto bueno.</p>
+  <div class="tablewrap"><table class="mx">
+    <tr><th></th><th>Corrección segura</th><th>Moderada</th><th>Riesgosa</th></tr>
+    <tr><th>Crítico</th><td class="ok">se hace primero</td><td class="mid">se hace, probando</td><td class="ask">pregunta antes</td></tr>
+    <tr><th>Alto / medio</th><td class="ok">se hace</td><td class="mid">se hace, probando</td><td class="ask">pregunta antes</td></tr>
+    <tr><th>Bajo</th><td class="ok">se hace si es barato</td><td>se anota</td><td>se anota</td></tr>
+  </table></div>
+  <div class="tablewrap"><table class="mx">
+    <tr><th>Hallazgo real</th><th>Gravedad</th><th>Corrección</th><th>Riesgo de la corrección</th></tr>
+    <tr><td>Checkout sin ningún encabezado de seguridad</td><td>alto</td><td>encabezados + CSP mínima</td><td class="ok">seguro</td></tr>
+    <tr><td>Next.js 16.1.6 en el rango de alertas publicadas</td><td>medio</td><td>parche a 16.3.8</td><td class="ok">seguro</td></tr>
+    <tr><td>Next.js 14 sin nuevas correcciones</td><td>alto</td><td>migrar al 16</td><td class="ask">riesgoso</td></tr>
+    <tr><td>Sin CSP de scripts</td><td>medio</td><td><code>script-src</code> con nonce</td><td class="ask">riesgoso (quita el caché)</td></tr>
+    <tr><td>Clave secreta commiteada</td><td>crítico</td><td>cambiar la clave</td><td class="mid">moderado</td></tr>
+  </table></div>
+</div></section>
+
+<section id="pre"><div class="wrap">
+  <span class="chip">Requisitos previos</span>
+  <h2>Qué necesitas</h2>
+  <p class="sub">Nada de cuenta de pago ni servicio externo.</p>
+  <div class="grid g3">
+    <div class="card"><h3>El proyecto local</h3><p>La carpeta del sitio en tu computadora, de preferencia con git.</p><pre><span class="k">cd</span> ~/projetos/meu-site
+<span class="k">git</span> status</pre></div>
+    <div class="card"><h3>Un agente</h3><p>Claude Code o Codex abierto en la carpeta del sitio.</p><pre><span class="k">claude</span>   <span class="c"># o: codex</span></pre></div>
+    <div class="card"><h3>Node y npm</h3><p>Para el build, el <code>npm audit</code> y la simulación local.</p><pre><span class="k">node</span> -v && <span class="k">npm</span> -v</pre></div>
+  </div>
+</div></section>
+
+<section id="guia"><div class="wrap">
+  <span class="chip">Guía de uso · paso a paso</span>
+  <h2>Cómo usarlo hoy</h2>
+  <p class="sub">Mientras los scripts de la v1 no estén listos, el agente sigue el guion del <code>METODO.md</code> (en portugués).</p>
+  <div class="aviso">⚠️ Estado al 10/10/2026: método y roadmap publicados; los scripts automáticos de las capas 1–4 todavía están en construcción. El guion ya funciona con el agente haciendo las verificaciones.</div>
+
+  <div class="step"><div class="b">1</div><div>
+    <h3>Descarga el método</h3>
+    <p>Clona el kit junto a tu proyecto.</p>
+<pre><span class="k">git clone</span> <span class="s">https://github.com/inematds/blinda-site</span> ~/projetos/blinda-site</pre>
+  </div></div>
+
+  <div class="step"><div class="b">2</div><div>
+    <h3>Pide el diagnóstico (solo lectura)</h3>
+    <p>Abre el agente en la carpeta de <strong>tu sitio</strong> y pega el pedido.</p>
+<pre><span class="c"># dentro de Claude Code / Codex, en la carpeta del sitio</span>
+<span class="s">Sigue ~/projetos/blinda-site/METODO.md, etapas 1 a 3.
+Solo lectura: no modifiques nada fuera de la carpeta blindagem/.
+Guarda blindagem/relatorio.md y blindagem/plano.md.</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">3</div><div>
+    <h3>Lee el informe y el plan</h3>
+    <p>Cada hallazgo tiene evidencia y gravedad; cada corrección tiene riesgo y "cómo probar". Marca lo que apruebas.</p>
+<pre><span class="k">cat</span> blindagem/relatorio.md blindagem/plano.md</pre>
+  </div></div>
+
+  <div class="step"><div class="b">4</div><div>
+    <h3>Respaldo y simulación</h3>
+    <p>El agente crea la rama de respaldo, aplica los cambios en la rama, hace el build, levanta el sitio en un puerto libre y verifica los encabezados y la consola del navegador.</p>
+<pre><span class="s">Apruebo los ítems 1, 2 y 4 del plan. Haz las etapas 4 y 5 del METODO.md
+y muéstrame el resultado de la simulación antes de aplicar.</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">5</div><div>
+    <h3>Aplicar y verificar</h3>
+    <p>Un commit por corrección. Al final, el agente repite el diagnóstico y guarda la tabla antes × después.</p>
+<pre><span class="s">Puedes aplicar (etapa 6) y verificar (etapa 7). Push solo después de que yo lo revise.</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">6</div><div>
+    <h3>Compruébalo tú mismo</h3>
+    <p>Después de publicar, revisa los encabezados de tu propio sitio.</p>
+<pre><span class="k">curl</span> -sI <span class="s">https://seusite.com</span> | <span class="k">grep</span> -iE "content-security|x-frame|nosniff|referrer"</pre>
+  </div></div>
+</div></section>
+
+<section id="exemplos"><div class="wrap">
+  <span class="chip">Caso real</span>
+  <h2>De dónde salió el método</h2>
+  <p class="sub">El 10/10/2026 un escáner externo le dio nota D (46/100) a inema.club. Corregimos los sitios de INEMA a mano, y la experiencia se convirtió en este guion.</p>
+  <div class="grid g3">
+    <div class="card"><h3>inema.club</h3><p>Next 16.1.6 → 16.3.8, CSP mínima, X-Frame-Options, nosniff, Referrer-Policy y <code>x-powered-by</code> desactivado. Build, 12 pruebas y navegador sin errores.</p></div>
+    <div class="card"><h3>pay.inema.pro</h3><p>El checkout no enviaba <strong>ningún</strong> encabezado de seguridad y ni siquiera estaba en el escaneo. Recibió todos, probados con los enlaces del checkout.</p></div>
+    <div class="card"><h3>inema.vip e inema.pro</h3><p>Ya tenían casi todo; recibieron la CSP mínima. En inema.pro quedó anotada la migración de Next 14 como corrección riesgosa.</p></div>
+  </div>
+</div></section>
+
+<section id="roadmap"><div class="wrap">
+  <span class="chip">Roadmap</span>
+  <h2>Próximos pasos</h2>
+  <p class="sub">Piloto en los sitios de INEMA, en este orden: pay.inema.pro, inema.club, inema.vip, eventos.inema.pro.</p>
+  <div class="phase"><div class="tag">v0 ✓</div><div class="d"><strong>Método y roadmap</strong><span>METODO.md, matriz de riesgo, modelos de informe y plan. Publicado.</span></div></div>
+  <div class="phase"><div class="tag">v1</div><div class="d"><strong>Scripts de las capas 1–4 + skill</strong><span>Verificaciones automáticas que solo leen, informe generado, skill para Claude Code y Codex, piloto en los 4 sitios.</span></div></div>
+  <div class="phase"><div class="tag">v2</div><div class="d"><strong>Capa de código + modo CI</strong><span>El agente lee el código y señala riesgos; diagnóstico en cada push en GitHub Actions.</span></div></div>
+  <div class="phase"><div class="tag">v3</div><div class="d"><strong>Panel</strong><span>Historial de las notas de cada sitio a lo largo del tiempo.</span></div></div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="pill">Claude Code / Codex</div><div class="pill">Next.js · Vite · Vercel</div><div class="pill">MIT</div>
+    <p style="margin-top:18px">blinda-site · gratuito y abierto ·
+      <a href="https://github.com/inematds/blinda-site">inematds/blinda-site</a> ·
+      <a href="https://inema.club">INEMA.CLUB</a></p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var KEY='blinda-site-theme';
+    var b=document.body, t=document.getElementById('themeToggle');
+    if(localStorage.getItem(KEY)==='light'){ b.classList.add('light'); t.textContent='☀️'; }
+    t.addEventListener('click',function(){
+      var light=b.classList.toggle('light');
+      t.textContent=light?'☀️':'🌙';
+      localStorage.setItem(KEY, light?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>

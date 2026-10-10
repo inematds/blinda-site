@@ -1,0 +1,5 @@
+*.codex.log
+*.log
+node_modules/
+.env*
+blindagem/
